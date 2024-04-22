@@ -4,11 +4,12 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.metrics import classification_report, confusion_matrix
 import model
 
-def load_and_prepare_data(file_path):
+def prep_data(file_path):
     data_frame = pd.read_fwf(file_path)
+    
+    #Drop the following columns that are not being used as input features
     columns_to_drop = [
         'Timestamp', 'Unnamed: 1', 'Source', 'Bt-med', 'Bt-min', 'Bt-max', 
         'Bx-med', 'Bx-min', 'Bx-max', 'By-med', 'By-min', 'By-max', 'Bz-min', 
@@ -46,20 +47,18 @@ def plot_history(history):
     plt.show()
 
 
-# Load and prepare data
-features, labels = load_and_prepare_data('maindata.txt')
+# Preparing the data
+features, labels = prep_data('maindata.txt')
 
-# Split the data
+# Splitting data
 X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.3, random_state=42)
 
-# Build and train the model
+# Building the model
 basic_nn = model.basic_nn(X_train.shape[1], 0.01)
+
+#Training the model
 trained_model, history = model.train_model(X_train, y_train, 128, 5, basic_nn)
 
-# Evaluate and plot model performance
+# Plotting model performance
 plot_history(history)
 
-# Predict and evaluate the model
-probabilities = model.predict_model(X_test, trained_model)
-predictions = (probabilities > 0.5).astype(int)
-print(classification_report(y_test, predictions))
